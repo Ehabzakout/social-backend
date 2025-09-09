@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-export function hash(text: string) {
+export function hashText(text: string) {
 	return bcrypt.hashSync(text);
 }
 
