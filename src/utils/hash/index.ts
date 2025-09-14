@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
-export function hashText(text: string) {
-	return bcrypt.hashSync(text);
+export async function hashText(text: string) {
+	return await bcrypt.hash(text, 10);
 }
 
-export function compareText(text: string, hashText: string) {
-	return bcrypt.compareSync(text, hashText);
+export async function compareText(text: string, hashText: string) {
+	return await bcrypt.compare(text, hashText);
 }

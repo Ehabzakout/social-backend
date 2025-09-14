@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hash = hash;
+exports.hashText = hashText;
 exports.compareText = compareText;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-function hash(text) {
-    return bcryptjs_1.default.hashSync(text);
+async function hashText(text) {
+    return await bcryptjs_1.default.hash(text, 10);
 }
-function compareText(text, hashText) {
-    return bcryptjs_1.default.compareSync(text, hashText);
+async function compareText(text, hashText) {
+    return await bcryptjs_1.default.compare(text, hashText);
 }

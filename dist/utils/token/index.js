@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateToken = generateToken;
+exports.verifyToken = verifyToken;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const secretKey = process.env.JWT_SECRET;
+function generateToken(data, secret = secretKey) {
+    return jsonwebtoken_1.default.sign(data, secret);
+}
+function verifyToken(token, secret = secretKey) {
+    const payload = jsonwebtoken_1.default.verify(token, secret);
+    if (typeof payload === "string" ||
+        !payload ||
+        !("id" in payload) ||
+        !("name" in payload)) {
+        throw new Error("Invalid token payload");
+    }
+    return payload;
+}

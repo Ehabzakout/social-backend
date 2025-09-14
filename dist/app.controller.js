@@ -1,18 +1,24 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = bootstrap;
-const auth_controller_1 = __importDefault(require("./modules/auth/auth.controller"));
-const connection_1 = __importDefault(require("./DB/connection"));
+const DB_1 = require("./DB");
 const dotenv_1 = require("dotenv");
+const modules_1 = require("./modules");
 function bootstrap(app, express) {
     (0, dotenv_1.config)({ path: "./config/dev.env" });
-    (0, connection_1.default)();
+    (0, DB_1.connectDB)();
     app.use(express.json());
-    app.use("/auth", auth_controller_1.default);
+    app.use("/auth", modules_1.authRouter);
+    app.use("/user", modules_1.userRouter);
     app.use("/{*dummy}", (req, res) => {
         res.status(404).json({ message: "route not found", success: false });
+    });
+    app.use((error, req, res, next) => {
+        return res.status(error.statusCode || 500).json({
+            message: error.message || "Internal Server Error",
+            success: false,
+            details: error.errorDetails,
+            stack: error.stack,
+        });
     });
 }

@@ -16,11 +16,15 @@ class abstractRepository {
     }
     // get one method
     async getOne(filter, projection, options) {
-        return this.model.findOne(filter, projection, options);
+        return await this.model.findOne(filter, projection, options);
+    }
+    // get one by id
+    async getOneById(id) {
+        return await this.model.findById(id);
     }
     //   delete one method
     async deleteOne(filter, options) {
-        return this.model.deleteOne(filter, options);
+        return await this.model.deleteOne(filter, options);
     }
 }
 exports.abstractRepository = abstractRepository;

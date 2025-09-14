@@ -3,33 +3,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BadRequestError = exports.NotAuthorizedError = exports.ConflictError = exports.NotFoundError = exports.AppError = void 0;
 class AppError extends Error {
     statusCode;
-    constructor(message, statusCode) {
+    errorDetails;
+    constructor(message, statusCode, errorDetails) {
         super(message);
         this.statusCode = statusCode;
+        this.errorDetails = errorDetails;
     }
 }
 exports.AppError = AppError;
 class NotFoundError extends AppError {
-    constructor(message) {
-        super(message, 404);
+    constructor(message, errorDetails) {
+        super(message, 404, errorDetails);
     }
 }
 exports.NotFoundError = NotFoundError;
 class ConflictError extends AppError {
-    constructor(message) {
-        super(message, 409);
+    constructor(message, errorDetails) {
+        super(message, 409, errorDetails);
     }
 }
 exports.ConflictError = ConflictError;
 class NotAuthorizedError extends AppError {
-    constructor(message) {
-        super(message, 401);
+    constructor(message, errorDetails) {
+        super(message, 401, errorDetails);
     }
 }
 exports.NotAuthorizedError = NotAuthorizedError;
 class BadRequestError extends AppError {
-    constructor(message) {
-        super(message, 400);
+    constructor(message, errorDetails) {
+        super(message, 400, errorDetails);
     }
 }
 exports.BadRequestError = BadRequestError;

@@ -7,3 +7,8 @@ export interface RegisterDTO {
 	phone?: string;
 	gender: GENDER;
 }
+
+export interface LoginDTO {
+	email: string;
+	password: string;
+}

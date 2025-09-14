@@ -30,7 +30,12 @@ export abstract class abstractRepository<T> {
 		projection?: ProjectionType<T>,
 		options?: QueryOptions<T>
 	) {
-		return this.model.findOne(filter, projection, options);
+		return await this.model.findOne(filter, projection, options);
+	}
+
+	// get one by id
+	async getOneById(id: string) {
+		return await this.model.findById(id);
 	}
 
 	//   delete one method
@@ -38,6 +43,6 @@ export abstract class abstractRepository<T> {
 		filter: RootFilterQuery<T>,
 		options?: MongooseBaseQueryOptions<T>
 	) {
-		return this.model.deleteOne(filter, options);
+		return await this.model.deleteOne(filter, options);
 	}
 }
