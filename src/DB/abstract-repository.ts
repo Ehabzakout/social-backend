@@ -5,6 +5,7 @@ import {
 	ProjectionType,
 	QueryOptions,
 	RootFilterQuery,
+	UpdateQuery,
 } from "mongoose";
 
 export abstract class abstractRepository<T> {
@@ -18,7 +19,7 @@ export abstract class abstractRepository<T> {
 	// update one method
 	async updateOne(
 		filter: RootFilterQuery<T>,
-		update: Partial<T>,
+		update: UpdateQuery<T>,
 		options?: MongooseUpdateQueryOptions<T>
 	) {
 		return await this.model.updateOne(filter, update, options);

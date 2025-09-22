@@ -5,7 +5,7 @@ const DB_1 = require("./DB");
 const dotenv_1 = require("dotenv");
 const modules_1 = require("./modules");
 function bootstrap(app, express) {
-    (0, dotenv_1.config)({ path: "./config/dev.env" });
+    (0, dotenv_1.config)();
     (0, DB_1.connectDB)();
     app.use(express.json());
     app.use("/auth", modules_1.authRouter);

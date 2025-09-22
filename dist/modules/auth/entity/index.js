@@ -12,5 +12,6 @@ class UserEntity {
     role;
     otp;
     otpExpiredAt;
+    isVerified;
 }
 exports.UserEntity = UserEntity;

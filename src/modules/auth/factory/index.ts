@@ -17,6 +17,7 @@ export class AuthFactoryService {
 		user.role = SYS_ROLE.user;
 		user.phone = user.phone as string;
 		user.userAgent = USER_AGENT.local;
+		user.isVerified = false;
 		return user;
 	}
 }

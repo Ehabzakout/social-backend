@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateToken = generateToken;
 exports.verifyToken = verifyToken;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const secretKey = process.env.JWT_SECRET;
+const env_config_1 = __importDefault(require("../../config/env/env-config"));
+const secretKey = env_config_1.default.JWT_SECRET;
 function generateToken(data, secret = secretKey) {
     return jsonwebtoken_1.default.sign(data, secret);
 }

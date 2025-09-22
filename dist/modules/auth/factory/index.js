@@ -18,6 +18,7 @@ class AuthFactoryService {
         user.role = enum_1.SYS_ROLE.user;
         user.phone = user.phone;
         user.userAgent = enum_1.USER_AGENT.local;
+        user.isVerified = false;
         return user;
     }
 }

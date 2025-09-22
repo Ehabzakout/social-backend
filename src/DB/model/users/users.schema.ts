@@ -1,6 +1,7 @@
 import { Schema } from "mongoose";
 import { IUser } from "../../../utils/common/interfaces/user";
 import { GENDER, SYS_ROLE, USER_AGENT } from "../../../utils/common/enum";
+import { sendEmail } from "../../../utils/email";
 
 export const userSchema = new Schema<IUser>(
 	{
@@ -35,12 +36,14 @@ export const userSchema = new Schema<IUser>(
 				return true;
 			},
 		},
+
 		credentialUpdatedAt: Date,
 		gender: { type: String, enum: GENDER, default: GENDER.male },
 		role: { type: String, enum: SYS_ROLE, default: SYS_ROLE.user },
 		userAgent: { type: String, enum: USER_AGENT, default: USER_AGENT.local },
 		otp: { type: String, length: 6 },
 		otpExpiredAt: { type: Date },
+		isVerified: { type: Boolean, default: false },
 	},
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -55,3 +58,13 @@ userSchema
 		this.firstName = fName as string;
 		this.lastName = lName as string;
 	});
+
+userSchema.pre("save", async function () {
+	if (this.userAgent !== "google" && this.isNew) {
+		await sendEmail({
+			subject: "Confirm email",
+			to: this.email,
+			html: `<h2>Your OTP is : ${this.otp} </h2>`,
+		});
+	}
+});

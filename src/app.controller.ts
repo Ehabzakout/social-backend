@@ -6,7 +6,7 @@ import { type AppError } from "./utils/error";
 import { authRouter, userRouter } from "./modules";
 
 export default function bootstrap(app: Express, express: any) {
-	config({ path: "./config/dev.env" });
+	config();
 	connectDB();
 	app.use(express.json());
 	app.use("/auth", authRouter);

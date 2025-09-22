@@ -13,4 +13,5 @@ export interface IUser {
 	role: SYS_ROLE;
 	otp?: string;
 	otpExpiredAt?: Date;
+	isVerified: boolean;
 }

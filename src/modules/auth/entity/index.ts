@@ -11,4 +11,5 @@ export class UserEntity {
 	public role!: SYS_ROLE;
 	public otp?: string;
 	public otpExpiredAt?: Date;
+	public isVerified!: boolean;
 }
