@@ -1,23 +1,20 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 import envConfig from "../../config/env/env-config";
 
 const secretKey = envConfig.JWT_SECRET as string;
-export function generateToken(
-	data: { id: string; name: string },
-	secret: string = secretKey
-) {
-	return jwt.sign(data, secret);
+export function generateToken({
+	data,
+	secret = secretKey,
+	options,
+}: {
+	data: { id: string; name: string; role: string };
+	secret?: string;
+	options?: SignOptions;
+}) {
+	return jwt.sign(data, secret, options);
 }
 
 export function verifyToken(token: string, secret: string = secretKey) {
 	const payload = jwt.verify(token, secret);
-	if (
-		typeof payload === "string" ||
-		!payload ||
-		!("id" in payload) ||
-		!("name" in payload)
-	) {
-		throw new Error("Invalid token payload");
-	}
-	return payload as { id: string; name: string };
+	return payload as JwtPayload;
 }

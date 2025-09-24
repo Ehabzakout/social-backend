@@ -3,6 +3,7 @@ import { NotAuthorizedError, NotFoundError } from "../utils/error";
 import { verifyToken } from "../utils/token";
 import { UserRepository } from "../DB/model/users/user-repository";
 import { IUser } from "../utils/common/interfaces/user";
+import { JwtPayload } from "jsonwebtoken";
 
 export async function isAuthenticated(
 	req: Request,
@@ -15,6 +16,6 @@ export async function isAuthenticated(
 	const User = new UserRepository();
 	const existedUser = await User.getOneById(payload.id);
 	if (!existedUser) throw new NotFoundError("user not found");
-
+	req.user = existedUser;
 	next();
 }

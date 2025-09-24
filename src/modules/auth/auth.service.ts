@@ -4,6 +4,7 @@ import { UserRepository } from "./../../DB";
 import {
 	compareText,
 	ConflictError,
+	generateToken,
 	NotAuthorizedError,
 	NotFoundError,
 } from "../../utils";
@@ -41,9 +42,18 @@ class AuthService {
 		if (!match) throw new NotAuthorizedError("Invalid credentials");
 		if (!existedUser.isVerified)
 			throw new NotAuthorizedError("Verify your account");
+
+		const accessToken = generateToken({
+			data: {
+				id: existedUser.id as string,
+				name: existedUser.firstName,
+				role: String(existedUser.role),
+			},
+			options: { expiresIn: "1d" },
+		});
 		return res
 			.status(200)
-			.json({ message: "logged in successfully", success: true });
+			.json({ message: "logged in successfully", success: true, accessToken });
 	};
 
 	// Verify Account

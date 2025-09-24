@@ -1,4 +1,4 @@
 import authRouter from "./auth/auth.controller";
 import userRouter from "./users/users.controller";
-
-export { authRouter, userRouter };
+import postRouter from "./post/post.controller";
+export { authRouter, userRouter, postRouter };

@@ -13,5 +13,6 @@ async function isAuthenticated(req, res, next) {
     const existedUser = await User.getOneById(payload.id);
     if (!existedUser)
         throw new error_1.NotFoundError("user not found");
+    req.user = existedUser;
     next();
 }

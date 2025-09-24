@@ -34,9 +34,17 @@ class AuthService {
             throw new utils_1.NotAuthorizedError("Invalid credentials");
         if (!existedUser.isVerified)
             throw new utils_1.NotAuthorizedError("Verify your account");
+        const accessToken = (0, utils_1.generateToken)({
+            data: {
+                id: existedUser.id,
+                name: existedUser.firstName,
+                role: String(existedUser.role),
+            },
+            options: { expiresIn: "1d" },
+        });
         return res
             .status(200)
-            .json({ message: "logged in successfully", success: true });
+            .json({ message: "logged in successfully", success: true, accessToken });
     };
     // Verify Account
     verifyAccount = async (req, res) => {

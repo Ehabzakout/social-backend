@@ -10,6 +10,7 @@ function bootstrap(app, express) {
     app.use(express.json());
     app.use("/auth", modules_1.authRouter);
     app.use("/user", modules_1.userRouter);
+    app.use("/posts", modules_1.postRouter);
     app.use("/{*dummy}", (req, res) => {
         res.status(404).json({ message: "route not found", success: false });
     });
