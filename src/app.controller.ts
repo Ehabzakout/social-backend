@@ -23,7 +23,6 @@ export default function bootstrap(app: Express, express: any) {
 				message: error.message || "Internal Server Error",
 				success: false,
 				details: error.errorDetails,
-				stack: error.stack,
 			});
 		}
 	);
