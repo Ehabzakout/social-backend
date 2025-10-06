@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { CreatePostDTO } from "./post.dto";
 import { PostFactory } from "./factory";
 import { PostRepository } from "../../DB/model/post/post-repository";
-import { BadRequestError, NotFoundError, REACTION } from "../../utils";
-import { FALSE_VALUES } from "../../constants";
+import { BadRequestError, ForbiddenError, NotFoundError } from "../../utils";
+
+import ReactionProvider from "../../utils/common/provider/reactions-provider";
 
 class PostService {
 	private readonly postRepository = new PostRepository();
@@ -23,36 +24,11 @@ class PostService {
 	addReact = async (req: Request, res: Response) => {
 		const { id } = req.params;
 		const { reaction } = req.body;
-		const userId = req.user?._id;
-		if (!id) {
-			throw new BadRequestError("You should send post id");
+		const userId = req.user!._id.toString();
+		if (!id || !userId) {
+			throw new BadRequestError("You should send id");
 		}
-
-		const post = await this.postRepository.getOneById(id);
-		if (!post) throw new NotFoundError("can't found post");
-
-		const reactIndex = post?.reactions.findIndex(
-			(react) => react.userId.toString() == userId?.toString()
-		);
-		if (reactIndex === -1) {
-			const react = { reaction, userId };
-			await this.postRepository.updateOne(
-				{ _id: id },
-				{ $push: { reactions: react } }
-			);
-		} else if (FALSE_VALUES.includes(reaction)) {
-			this.postRepository.updateOne(
-				{ _id: id, "reactions.userId": userId },
-				{ $pull: { reactions: post.reactions[reactIndex] } }
-			);
-		} else {
-			await this.postRepository.updateOne(
-				{ _id: id, "reactions.userId": userId },
-				{
-					"reactions.$.reaction": reaction,
-				}
-			);
-		}
+		await ReactionProvider({ repo: this.postRepository, id, userId, reaction });
 
 		return res.sendStatus(204);
 	};
@@ -70,6 +46,11 @@ class PostService {
 						path: "userId",
 						select: ["fullName", "firstName", "lastName", "-_id"],
 					},
+					{
+						path: "comments",
+						select: ["content", "userId", "postId", "parentIds"],
+						match: { parentId: null },
+					},
 				],
 			}
 		);
@@ -78,6 +59,21 @@ class PostService {
 		return res
 			.status(200)
 			.json({ message: "Get post successfully", success: true, post });
+	};
+
+	deletePost = async (req: Request, res: Response) => {
+		const { id } = req.params;
+		const existedPost = await this.postRepository.getOne({ _id: id });
+
+		if (!existedPost) throw new NotFoundError("Can't found post");
+		if (existedPost.userId.toString() !== req.user?._id.toString())
+			throw new ForbiddenError("You aren't authorized to delete this post");
+
+		await this.postRepository.deleteOne({ _id: id });
+
+		return res
+			.status(200)
+			.json({ message: "Post deleted successfully", success: true });
 	};
 }
 

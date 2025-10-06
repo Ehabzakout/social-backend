@@ -3,7 +3,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { connectDB } from "./DB";
 import { config } from "dotenv";
 import { type AppError } from "./utils/error";
-import { authRouter, userRouter, postRouter } from "./modules";
+import { authRouter, userRouter, postRouter, commentRouter } from "./modules";
 
 export default function bootstrap(app: Express, express: any) {
 	config();
@@ -12,7 +12,7 @@ export default function bootstrap(app: Express, express: any) {
 	app.use("/auth", authRouter);
 	app.use("/user", userRouter);
 	app.use("/posts", postRouter);
-
+	app.use("/comment", commentRouter);
 	app.use("/{*dummy}", (req, res) => {
 		res.status(404).json({ message: "route not found", success: false });
 	});

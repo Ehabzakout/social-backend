@@ -19,8 +19,8 @@ class abstractRepository {
         return await this.model.findOne(filter, projection, options);
     }
     // get one by id
-    async getOneById(id) {
-        return await this.model.findById(id);
+    async getOneById(id, projection, options) {
+        return await this.model.findById(id, projection, options);
     }
     //   delete one method
     async deleteOne(filter, options) {

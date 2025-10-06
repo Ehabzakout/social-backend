@@ -17,3 +17,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./enum"), exports);
 __exportStar(require("./interfaces/user"), exports);
 __exportStar(require("./interfaces/post"), exports);
+__exportStar(require("./interfaces/comment"), exports);

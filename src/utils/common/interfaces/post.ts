@@ -5,6 +5,7 @@ export interface IReaction {
 	userId: ObjectId;
 }
 export interface IPost {
+	_id: ObjectId;
 	userId: ObjectId;
 	content: string;
 	attachment?: any[];

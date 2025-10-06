@@ -35,8 +35,12 @@ export abstract class abstractRepository<T> {
 	}
 
 	// get one by id
-	async getOneById(id: string) {
-		return await this.model.findById(id);
+	async getOneById(
+		id: string,
+		projection?: ProjectionType<T>,
+		options?: QueryOptions<T>
+	) {
+		return await this.model.findById(id, projection, options);
 	}
 
 	//   delete one method

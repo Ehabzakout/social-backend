@@ -2,9 +2,10 @@ import { ObjectId } from "mongoose";
 import { IReaction } from "./post";
 
 export interface IComment {
+	_id: ObjectId;
 	userId: ObjectId;
 	postId: ObjectId;
-	parentIds: ObjectId[];
+	parentId: ObjectId | undefined;
 	content: string;
 	reactions: IReaction[];
 	mention?: ObjectId[];
