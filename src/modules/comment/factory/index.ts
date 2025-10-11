@@ -21,6 +21,7 @@ export class CommentFactory {
 		comment.userId = userId;
 		comment.reactions = [];
 		comment.parentId = existedComment?._id;
+
 		return comment;
 	};
 }

@@ -22,6 +22,7 @@ exports.commentSchema = new mongoose_1.Schema({
     },
     reactions: [common_1.reactionSchema],
     parentId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Comment" },
+    mentions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User" }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 exports.commentSchema.virtual("replies", {
     ref: "Comment",

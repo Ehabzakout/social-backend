@@ -8,16 +8,20 @@ const utils_1 = require("../../utils");
 const post_repository_1 = require("../../DB/model/post/post-repository");
 const factory_1 = require("./factory");
 const reactions_provider_1 = __importDefault(require("../../utils/common/provider/reactions-provider"));
+const DB_1 = require("../../DB");
+const email_1 = require("../../utils/email");
 class CommentService {
     commentRepository = new comment_reposatory_1.CommentRepository();
     postRepository = new post_repository_1.PostRepository();
     commentFactory = new factory_1.CommentFactory();
+    userRepository = new DB_1.UserRepository();
     // create comment function
     create = async (req, res) => {
         // get params from request
         const { postId, id } = req.params;
         const userId = req.user?._id;
         const commentDTO = req.body;
+        console.log(commentDTO.mentions);
         if (!postId)
             throw new utils_1.BadRequestError("Can't read post id");
         if (!userId)
@@ -40,6 +44,21 @@ class CommentService {
             postId: post._id,
             existedComment,
         });
+        // Send email for tagged user
+        if (commentDTO.mentions && commentDTO.mentions?.length > 0) {
+            newComment.mentions = [];
+            for (let userId of commentDTO.mentions) {
+                const user = await this.userRepository.getOneById(userId);
+                if (!user)
+                    throw new utils_1.BadRequestError("user you tagged not found");
+                newComment.mentions?.push(user._id);
+                (0, email_1.sendEmail)({
+                    subject: `${req.user?.firstName} Mentioned you`,
+                    to: user.email,
+                    html: `<p>${req.user?.firstName} mentioned you in his comment ${commentDTO.content}</p>`,
+                });
+            }
+        }
         // add comment to database
         const createdComment = await this.commentRepository.create(newComment);
         // Response

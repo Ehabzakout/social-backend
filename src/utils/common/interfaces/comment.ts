@@ -8,5 +8,5 @@ export interface IComment {
 	parentId: ObjectId | undefined;
 	content: string;
 	reactions: IReaction[];
-	mention?: ObjectId[];
+	mentions?: ObjectId[];
 }

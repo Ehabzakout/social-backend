@@ -22,6 +22,7 @@ export const commentSchema = new Schema<IComment>(
 		},
 		reactions: [reactionSchema],
 		parentId: { type: Schema.Types.ObjectId, ref: "Comment" },
+		mentions: [{ type: Schema.Types.ObjectId, ref: "User" }],
 	},
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

@@ -12,18 +12,21 @@ import { PostRepository } from "../../DB/model/post/post-repository";
 import { commentDTO } from "./comment.dto";
 import { CommentFactory } from "./factory";
 import ReactionProvider from "../../utils/common/provider/reactions-provider";
+import { UserRepository } from "../../DB";
+import { sendEmail } from "../../utils/email";
 
 class CommentService {
 	private commentRepository = new CommentRepository();
 	private postRepository = new PostRepository();
 	private commentFactory = new CommentFactory();
-
+	private userRepository = new UserRepository();
 	// create comment function
 	create = async (req: Request, res: Response) => {
 		// get params from request
 		const { postId, id } = req.params;
 		const userId = req.user?._id;
 		const commentDTO: commentDTO = req.body;
+		console.log(commentDTO.mentions);
 
 		if (!postId) throw new BadRequestError("Can't read post id");
 		if (!userId) throw new NotAuthorizedError("You are not logged in");
@@ -49,6 +52,20 @@ class CommentService {
 			existedComment,
 		});
 
+		// Send email for tagged user
+		if (commentDTO.mentions && commentDTO.mentions?.length > 0) {
+			newComment.mentions = [];
+			for (let userId of commentDTO.mentions) {
+				const user = await this.userRepository.getOneById(userId);
+				if (!user) throw new BadRequestError("user you tagged not found");
+				newComment.mentions?.push(user._id);
+				sendEmail({
+					subject: `${req.user?.firstName} Mentioned you`,
+					to: user.email,
+					html: `<p>${req.user?.firstName} mentioned you in his comment ${commentDTO.content}</p>`,
+				});
+			}
+		}
 		// add comment to database
 		const createdComment = await this.commentRepository.create(newComment);
 
