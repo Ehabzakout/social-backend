@@ -75,9 +75,15 @@ class AuthService {
         const { email } = req.body;
         const otp = (0, utils_1.generateOtp)();
         const otpExpiredAt = (0, utils_1.expiryTime)();
-        const existedUser = await this.userRepository.findOneAndUpdate({ email }, { otp, otpExpiredAt });
+        const existedUser = await this.userRepository.getOne({ email });
         if (!existedUser)
             throw new utils_1.NotFoundError("Can't found user");
+        if (existedUser.otpExpiredAt &&
+            new Date(existedUser.otpExpiredAt) > new Date())
+            throw new utils_1.BadRequestError("Your OTP is not expired");
+        existedUser.otp = otp;
+        existedUser.otpExpiredAt = otpExpiredAt;
+        await existedUser.save();
         (0, email_1.sendEmail)({
             subject: "Social App OTP",
             to: email,
@@ -141,6 +147,39 @@ class AuthService {
         return res
             .status(200)
             .json({ message: "logged in successfully", success: true, accessToken });
+    };
+    // update password
+    updatePassword = async (req, res) => {
+        const { password, newPassword, rePassword } = req.body;
+        if (newPassword !== rePassword)
+            throw new utils_1.BadRequestError("Your new password doesn't match");
+        const match = await (0, utils_1.compareText)(password, req.user.password);
+        if (!match)
+            throw new utils_1.NotAuthorizedError("Old password isn't correct");
+        const hashPassword = await (0, utils_1.hashText)(newPassword);
+        await this.userRepository.updateOne({ _id: req.user?._id }, { password: hashPassword, credentialUpdatedAt: Date.now() });
+        return res
+            .status(200)
+            .json({ message: "Your password updated successfully", success: true });
+    };
+    // update email
+    updateEmail = async (req, res) => {
+        const { email } = req.body;
+        const existedEmail = await this.userRepository.getOne({ email });
+        if (existedEmail)
+            throw new utils_1.ConflictError("Email is already exist");
+        await this.userRepository.findOneAndUpdate({ _id: req.user?._id }, { email });
+        return res
+            .status(201)
+            .json({ message: "Your email updated successfully", success: true });
+    };
+    // update user info
+    updateUserInfo = async (req, res) => {
+        const userData = req.body;
+        await this.userRepository.findOneAndUpdate({ _id: req.user?._id }, userData);
+        return res
+            .status(200)
+            .json({ message: "Your data updated successfully", success: true });
     };
 }
 exports.default = new AuthService();

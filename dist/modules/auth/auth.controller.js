@@ -15,4 +15,7 @@ router.post("/verify-account", (0, middleware_1.isValid)(auth_validation_1.verif
 router.patch("/send-otp", (0, middleware_1.isValid)(auth_validation_1.emailSchema), auth_service_2.default.sendOTP);
 router.patch("/activate-2Auth", (0, middleware_1.isValid)(auth_validation_1.otpSchema), middleware_1.isAuthenticated, auth_service_2.default.activate2Auth);
 router.post("/login-with-otp", (0, middleware_1.isValid)(auth_validation_1.verifyOtpSchema), auth_service_2.default.loginWithOtp);
+router.patch("/update-password", middleware_1.isAuthenticated, (0, middleware_1.isValid)(auth_validation_1.updatePasswordSchema), auth_service_2.default.updatePassword);
+router.patch("/update-email", middleware_1.isAuthenticated, (0, middleware_1.isValid)(auth_validation_1.emailSchema), auth_service_2.default.updateEmail);
+router.put("/update-user-info", middleware_1.isAuthenticated, (0, middleware_1.isValid)(auth_validation_1.updateUserInfo), auth_service_2.default.updateUserInfo);
 exports.default = router;

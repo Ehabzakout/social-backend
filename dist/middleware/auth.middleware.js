@@ -13,7 +13,7 @@ async function isAuthenticated(req, res, next) {
     const existedUser = await User.getOneById(payload.id);
     if (!existedUser)
         throw new error_1.NotFoundError("user not found");
-    if (existedUser.credentialUpdatedAt > new Date(payload.iat))
+    if (existedUser.credentialUpdatedAt > new Date(payload.iat * 1000))
         throw new error_1.NotAuthorizedError("Expired logged in");
     req.user = existedUser;
     next();

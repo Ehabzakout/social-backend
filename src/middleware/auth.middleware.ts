@@ -16,7 +16,8 @@ export async function isAuthenticated(
 	const User = new UserRepository();
 	const existedUser = await User.getOneById(payload.id);
 	if (!existedUser) throw new NotFoundError("user not found");
-	if (existedUser.credentialUpdatedAt > new Date(payload.iat!))
+
+	if (existedUser.credentialUpdatedAt > new Date(payload.iat! * 1000))
 		throw new NotAuthorizedError("Expired logged in");
 	req.user = existedUser;
 	next();

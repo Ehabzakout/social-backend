@@ -6,6 +6,8 @@ import {
 	loginSchema,
 	otpSchema,
 	registerSchema,
+	updatePasswordSchema,
+	updateUserInfo,
 	verifyOtpSchema,
 } from "./auth.validation";
 import authService from "./auth.service";
@@ -30,5 +32,25 @@ router.post(
 	"/login-with-otp",
 	isValid(verifyOtpSchema),
 	authService.loginWithOtp
+);
+
+router.patch(
+	"/update-password",
+	isAuthenticated,
+	isValid(updatePasswordSchema),
+	authService.updatePassword
+);
+
+router.patch(
+	"/update-email",
+	isAuthenticated,
+	isValid(emailSchema),
+	authService.updateEmail
+);
+router.put(
+	"/update-user-info",
+	isAuthenticated,
+	isValid(updateUserInfo),
+	authService.updateUserInfo
 );
 export default router;
