@@ -1,5 +1,5 @@
 export function generateOtp() {
-	return Math.floor(Math.random() * 90000 + 10000) as unknown as string;
+	return Math.floor(Math.random() * 90000 + 100000) as unknown as string;
 }
 
 export function expiryTime(time: number = 5 * 60 * 1000) {

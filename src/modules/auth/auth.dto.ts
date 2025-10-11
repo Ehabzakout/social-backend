@@ -13,7 +13,11 @@ export interface LoginDTO {
 	password: string;
 }
 
-export interface VerifyAccountDTO {
+export interface VerifyOtpDTO {
 	email: string;
 	otp: string;
+}
+
+export interface SendOtpDTO {
+	email: string;
 }

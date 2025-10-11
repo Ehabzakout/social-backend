@@ -44,6 +44,7 @@ export const userSchema = new Schema<IUser>(
 		otp: { type: String, length: 6 },
 		otpExpiredAt: { type: Date },
 		isVerified: { type: Boolean, default: false },
+		loginWith2factor: { type: Boolean, default: false },
 	},
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

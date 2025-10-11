@@ -2,14 +2,22 @@ import type { Express, Request, Response, NextFunction } from "express";
 
 import { connectDB } from "./DB";
 import { config } from "dotenv";
+import { rateLimit } from "express-rate-limit";
 import { type AppError } from "./utils/error";
 import { authRouter, userRouter, postRouter, commentRouter } from "./modules";
 
 export default function bootstrap(app: Express, express: any) {
 	config();
 	connectDB();
+	const limiter = rateLimit({
+		windowMs: 5 * 60 * 1000,
+		limit: 5,
+		message: { message: "You had too many request", success: false },
+		statusCode: 429,
+		skipSuccessfulRequests: true,
+	});
 	app.use(express.json());
-	app.use("/auth", authRouter);
+	app.use("/auth", limiter, authRouter);
 	app.use("/user", userRouter);
 	app.use("/posts", postRouter);
 	app.use("/comment", commentRouter);

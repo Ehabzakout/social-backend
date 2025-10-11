@@ -16,6 +16,7 @@ export interface IUser {
 	otp?: string;
 	otpExpiredAt?: Date;
 	isVerified: boolean;
+	loginWith2factor: boolean;
 }
 
 declare module "jsonwebtoken" {

@@ -43,6 +43,13 @@ export abstract class abstractRepository<T> {
 		return await this.model.findById(id, projection, options);
 	}
 
+	async findOneAndUpdate(
+		filter: RootFilterQuery<T>,
+		update: UpdateQuery<T>,
+		options?: QueryOptions<T>
+	) {
+		return await this.model.findOneAndUpdate(filter, update, options);
+	}
 	//   delete one method
 	async deleteOne(
 		filter: RootFilterQuery<T>,

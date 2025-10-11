@@ -1,15 +1,21 @@
 import type { Response, Request, NextFunction } from "express";
-import { LoginDTO, RegisterDTO, VerifyAccountDTO } from "./auth.dto";
+import { LoginDTO, RegisterDTO, VerifyOtpDTO } from "./auth.dto";
 import { UserRepository } from "./../../DB";
 import {
+	BadRequestError,
 	compareText,
 	ConflictError,
+	expiryTime,
+	ForbiddenError,
+	generateOtp,
 	generateToken,
 	NotAuthorizedError,
 	NotFoundError,
 } from "../../utils";
 import { AuthFactoryService } from "./factory";
 import { authProvider } from "./providers/auth.provider";
+import { sendEmail } from "../../utils/email";
+import { User } from "../../DB/model/users/users.model";
 
 class AuthService {
 	private userRepository = new UserRepository();
@@ -43,6 +49,21 @@ class AuthService {
 		if (!existedUser.isVerified)
 			throw new NotAuthorizedError("Verify your account");
 
+		if (existedUser.loginWith2factor) {
+			const otp = generateOtp();
+			const otpExpiredAt = expiryTime();
+			existedUser.otp = otp;
+			existedUser.otpExpiredAt = otpExpiredAt;
+			await existedUser.save();
+			sendEmail({
+				subject: "Social App OTP",
+				to: email,
+				html: `<h3>Your Otp is : ${otp}</h3>`,
+			});
+			return res
+				.status(200)
+				.json({ message: "OTP has been sent successfully", success: true });
+		}
 		const accessToken = generateToken({
 			data: {
 				id: existedUser.id as string,
@@ -58,13 +79,100 @@ class AuthService {
 
 	// Verify Account
 	verifyAccount = async (req: Request, res: Response) => {
-		const verifyAccountDTO: VerifyAccountDTO = req.body;
+		const verifyAccountDTO: VerifyOtpDTO = req.body;
 		await authProvider.checkOTP(verifyAccountDTO);
 		this.userRepository.updateOne(
 			{ email: verifyAccountDTO.email },
 			{ isVerified: true, $unset: { otp: "", otpExpiredAt: "" } }
 		);
 		return res.sendStatus(204);
+	};
+
+	// Send OTP
+	sendOTP = async (req: Request, res: Response) => {
+		const { email } = req.body;
+		const otp = generateOtp();
+		const otpExpiredAt = expiryTime();
+
+		const existedUser = await this.userRepository.findOneAndUpdate(
+			{ email },
+			{ otp, otpExpiredAt }
+		);
+		if (!existedUser) throw new NotFoundError("Can't found user");
+
+		sendEmail({
+			subject: "Social App OTP",
+			to: email,
+			html: `<h3>Your Otp is : ${otp}</h3>`,
+		});
+
+		return res.sendStatus(204);
+	};
+
+	// Activate 2-step verification
+	activate2Auth = async (req: Request, res: Response) => {
+		const user = req.user;
+		const { otp } = req.body;
+
+		if (!user?.otp)
+			throw new BadRequestError("You should send OTP to your Email first");
+		if (user?.otp && user?.otp !== otp)
+			throw new BadRequestError("invalid OTP");
+		if (user.otpExpiredAt && new Date() > new Date(user.otpExpiredAt))
+			throw new BadRequestError("OTP Expired");
+
+		if (!user.loginWith2factor) {
+			await User.updateOne(
+				{ _id: user._id },
+				{
+					loginWith2factor: true,
+					credentialUpdatedAt: Date.now(),
+					$unset: { otp: "", otpExpiredAt: "" },
+				}
+			);
+		} else {
+			await User.updateOne(
+				{ _id: user._id },
+				{
+					loginWith2factor: false,
+					credentialUpdatedAt: Date.now(),
+					$unset: { otp: "", otpExpiredAt: "" },
+				}
+			);
+		}
+		return res
+			.status(200)
+			.json({ message: "You 2 factor auth login updated", success: true });
+	};
+
+	// login with otp
+	loginWithOtp = async (req: Request, res: Response) => {
+		const { email, otp } = req.body;
+
+		const existedUser = await this.userRepository.getOne({ email });
+		if (!existedUser?.loginWith2factor)
+			throw new ForbiddenError("Login with 2 factor is not activated");
+		if (!existedUser) throw new NotFoundError("Can't found user");
+		if (!existedUser.otp)
+			throw new NotAuthorizedError("You should send otp to your email first");
+		if (existedUser.otp != otp) throw new NotAuthorizedError("Invalid otp");
+		if (existedUser.otpExpiredAt && existedUser?.otpExpiredAt < new Date())
+			throw new ForbiddenError("expired otp");
+
+		delete existedUser.otp;
+		delete existedUser.otpExpiredAt;
+		await existedUser.save();
+		const accessToken = generateToken({
+			data: {
+				id: existedUser.id as string,
+				name: existedUser.firstName,
+				role: String(existedUser.role),
+			},
+			options: { expiresIn: "1d" },
+		});
+		return res
+			.status(200)
+			.json({ message: "logged in successfully", success: true, accessToken });
 	};
 }
 
