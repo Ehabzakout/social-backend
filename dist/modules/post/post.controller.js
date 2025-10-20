@@ -14,4 +14,6 @@ router.post("/add", middleware_1.isAuthenticated, (0, middleware_1.isValid)(post
 router.patch("/:id", middleware_1.isAuthenticated, post_service_1.default.addReact);
 router.get("/:id", post_service_1.default.getSpecificPost);
 router.delete("/:id", middleware_1.isAuthenticated, post_service_1.default.deletePost);
+router.delete("/freeze/:id", middleware_1.isAuthenticated, post_service_1.default.freezePost);
+router.patch("/update/:id", middleware_1.isAuthenticated, post_service_1.default.updatePost);
 exports.default = router;

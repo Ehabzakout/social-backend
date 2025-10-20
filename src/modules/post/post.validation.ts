@@ -5,15 +5,13 @@ export const postSchema = z
 	.object({
 		content: z
 			.string()
-			.min(20, { error: "Your content should be larger than 20 char" })
+			.min(5, { error: "Your content should be larger than 5 char" })
 			.optional(),
 		attachments: z
 			.array(
-				z
-					.instanceof(File)
-					.refine((file) => file.size <= 4 * 1024 * 1024, {
-						message: "Max file size is 4MB",
-					})
+				z.instanceof(File).refine((file) => file.size <= 4 * 1024 * 1024, {
+					message: "Max file size is 4MB",
+				})
 			)
 			.min(1)
 			.max(4)

@@ -45,6 +45,9 @@ export const userSchema = new Schema<IUser>(
 		otpExpiredAt: { type: Date },
 		isVerified: { type: Boolean, default: false },
 		loginWith2factor: { type: Boolean, default: false },
+		blockedUsers: [Schema.Types.ObjectId],
+		requests: [{ type: Schema.Types.ObjectId, ref: "Request", unique: true }],
+		friends: [{ type: Schema.Types.ObjectId, ref: "User", unique: true }],
 	},
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

@@ -20,6 +20,8 @@ const postSchema = new mongoose_1.Schema({
     },
     reactions: [common_1.reactionSchema],
     attachment: [],
+    isDeleted: { type: Boolean, default: false, required: true },
+    deletedAt: { type: Date },
 }, { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } });
 postSchema.virtual("comments", {
     localField: "_id",

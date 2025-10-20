@@ -14,9 +14,17 @@ class abstractRepository {
     async updateOne(filter, update, options) {
         return await this.model.updateOne(filter, update, options);
     }
+    // update one method
+    async updateMany(filter, update, options) {
+        return await this.model.updateMany(filter, update, options);
+    }
     // get one method
     async getOne(filter, projection, options) {
         return await this.model.findOne(filter, projection, options);
+    }
+    // get many
+    async getMany(filter, projection, options) {
+        return await this.model.find(filter, projection, options);
     }
     // get one by id
     async getOneById(id, projection, options) {

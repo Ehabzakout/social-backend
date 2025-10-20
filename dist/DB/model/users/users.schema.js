@@ -44,6 +44,9 @@ exports.userSchema = new mongoose_1.Schema({
     otpExpiredAt: { type: Date },
     isVerified: { type: Boolean, default: false },
     loginWith2factor: { type: Boolean, default: false },
+    blockedUsers: [mongoose_1.Schema.Types.ObjectId],
+    requests: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "Request", unique: true }],
+    friends: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User", unique: true }],
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 exports.userSchema
     .virtual("fullName")

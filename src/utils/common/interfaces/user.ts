@@ -17,6 +17,9 @@ export interface IUser {
 	otpExpiredAt?: Date;
 	isVerified: boolean;
 	loginWith2factor: boolean;
+	blockedUsers: ObjectId[];
+	requests: ObjectId[];
+	friends: ObjectId[];
 }
 
 declare module "jsonwebtoken" {

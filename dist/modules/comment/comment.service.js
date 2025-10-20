@@ -10,6 +10,7 @@ const factory_1 = require("./factory");
 const reactions_provider_1 = __importDefault(require("../../utils/common/provider/reactions-provider"));
 const DB_1 = require("../../DB");
 const email_1 = require("../../utils/email");
+const update_provider_1 = require("../../utils/common/provider/update.provider");
 class CommentService {
     commentRepository = new comment_reposatory_1.CommentRepository();
     postRepository = new post_repository_1.PostRepository();
@@ -21,7 +22,6 @@ class CommentService {
         const { postId, id } = req.params;
         const userId = req.user?._id;
         const commentDTO = req.body;
-        console.log(commentDTO.mentions);
         if (!postId)
             throw new utils_1.BadRequestError("Can't read post id");
         if (!userId)
@@ -36,6 +36,8 @@ class CommentService {
             existedComment = await this.commentRepository.getOneById(id);
             if (!existedComment)
                 throw new utils_1.NotFoundError("Can't find comment with this id");
+            if (existedComment.isDeleted)
+                throw new utils_1.NotFoundError("this comment has been deleted");
         }
         // Get new comment from factory
         const newComment = await this.commentFactory.createComment({
@@ -110,6 +112,43 @@ class CommentService {
             reaction,
         });
         return res.sendStatus(204);
+    };
+    // Freeze comment
+    freezeComment = async (req, res) => {
+        const userId = req.user._id.toString();
+        const { id } = req.params;
+        if (!id)
+            throw new utils_1.BadRequestError("missing comment id");
+        const existedComment = await this.commentRepository.getOneById(id);
+        if (!existedComment)
+            throw new utils_1.NotFoundError("Can't found comment");
+        if (existedComment?.userId.toString() !== userId &&
+            existedComment.postId.userId.toString() !== userId)
+            throw new utils_1.ForbiddenError("Not authorized to delete comment ");
+        if (existedComment.isDeleted) {
+            await this.commentRepository.updateOne({ _id: id }, { $set: { isDeleted: false } });
+            return res
+                .status(200)
+                .json({ message: "Your comment has been restored", success: true });
+        }
+        else {
+            await this.commentRepository.updateOne({ _id: id }, { $set: { isDeleted: true } });
+            return res.status(200).json({
+                message: "Your comment has been deleted successfully",
+                success: true,
+            });
+        }
+    };
+    // Update Comment
+    updateComment = async (req, res) => {
+        const { id } = req.params;
+        if (!id)
+            throw new utils_1.BadRequestError("Send comment id");
+        const userId = req.user._id.toString();
+        await (0, update_provider_1.updateProvider)(this.commentRepository, id, userId, req.body);
+        return res
+            .status(200)
+            .json({ message: "Updated successfully", success: true });
     };
 }
 exports.default = new CommentService();

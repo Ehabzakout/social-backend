@@ -21,6 +21,8 @@ const postSchema = new Schema<IPost>(
 
 		reactions: [reactionSchema],
 		attachment: [],
+		isDeleted: { type: Boolean, default: false, required: true },
+		deletedAt: { type: Date },
 	},
 	{ timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } }
 );

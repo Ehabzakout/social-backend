@@ -9,4 +9,5 @@ export interface IComment {
 	content: string;
 	reactions: IReaction[];
 	mentions?: ObjectId[];
+	isDeleted: boolean;
 }

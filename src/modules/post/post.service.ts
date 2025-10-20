@@ -5,6 +5,7 @@ import { PostRepository } from "../../DB/model/post/post-repository";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../utils";
 
 import ReactionProvider from "../../utils/common/provider/reactions-provider";
+import { updateProvider } from "../../utils/common/provider/update.provider";
 
 class PostService {
 	private readonly postRepository = new PostRepository();
@@ -55,7 +56,7 @@ class PostService {
 			}
 		);
 		if (!post) throw new NotFoundError("Can't found post");
-
+		if (post.isDeleted) throw new NotFoundError("this post has been deleted");
 		return res
 			.status(200)
 			.json({ message: "Get post successfully", success: true, post });
@@ -74,6 +75,43 @@ class PostService {
 		return res
 			.status(200)
 			.json({ message: "Post deleted successfully", success: true });
+	};
+
+	// Freeze Post
+	freezePost = async (req: Request, res: Response) => {
+		const { id } = req.params;
+		if (!id) throw new BadRequestError("Not found post id");
+		const userId = req.user!._id.toString();
+
+		const post = await this.postRepository.getOneById(id);
+		if (!post) throw new NotFoundError("Can't found Post");
+		if (post.userId.toString() !== userId)
+			throw new ForbiddenError("Not authorize to delete this");
+
+		if (post.isDeleted) {
+			await this.postRepository.updateOne(
+				{ _id: id },
+				{ isDeleted: false, $unset: { deletedAt: "" } }
+			);
+		} else
+			await this.postRepository.updateOne(
+				{ _id: id },
+				{ isDeleted: true, deletedAt: Date.now() }
+			);
+		return res.sendStatus(204);
+	};
+
+	// Update Post
+
+	updatePost = async (req: Request, res: Response) => {
+		const { id } = req.params;
+		if (!id) throw new BadRequestError("Send comment id");
+		const userId = req.user!._id.toString();
+		console.log(userId);
+		await updateProvider(this.postRepository, id, userId, req.body);
+		return res
+			.status(200)
+			.json({ message: "Post Updated successfully", success: true });
 	};
 }
 

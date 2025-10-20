@@ -1,7 +1,7 @@
 import { CommentRepository } from "../../../DB/model/comment/comment.reposatory";
 import { PostRepository } from "../../../DB/model/post/post-repository";
 import { FALSE_VALUES } from "../../../constants";
-import { BadRequestError, NotFoundError } from "../../error";
+import { NotFoundError } from "../../error";
 
 type TReactionProvider = {
 	repo: CommentRepository | PostRepository;
@@ -15,7 +15,7 @@ export default async function ReactionProvider({
 	userId,
 	reaction,
 }: TReactionProvider) {
-	const document = await repo.getOneById(id);
+	const document = await repo.getOne({ _id: id });
 	if (!document) throw new NotFoundError("can't found ");
 
 	const reactIndex = document?.reactions.findIndex(

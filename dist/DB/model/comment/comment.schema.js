@@ -23,6 +23,7 @@ exports.commentSchema = new mongoose_1.Schema({
     reactions: [common_1.reactionSchema],
     parentId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Comment" },
     mentions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User" }],
+    isDeleted: { type: Boolean, default: false, required: true },
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 exports.commentSchema.virtual("replies", {
     ref: "Comment",
@@ -35,6 +36,26 @@ exports.commentSchema.pre("deleteOne", async function (next) {
     if (replies.length) {
         for (let reply of replies) {
             await this.model.deleteOne({ _id: reply._id });
+        }
+    }
+    next();
+});
+exports.commentSchema.pre("findOne", function (next) {
+    this.where({ isDeleted: false });
+    next();
+});
+exports.commentSchema.pre("updateOne", async function (next) {
+    const filter = typeof this.getFilter == "function" ? this.getFilter() : {};
+    const update = typeof this.getUpdate == "function" ? this.getUpdate() : {};
+    //@ts-expect-error
+    if ([true, false].includes(update.$set.isDeleted)) {
+        const replies = await this?.model.find({ parentId: filter._id });
+        if (replies.length) {
+            for (let reply of replies) {
+                await this.model.updateOne({ _id: reply._id }, 
+                //@ts-expect-error
+                { $set: { isDeleted: update.$set.isDeleted } });
+            }
         }
     }
     next();

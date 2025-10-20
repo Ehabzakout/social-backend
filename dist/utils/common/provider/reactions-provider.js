@@ -4,7 +4,7 @@ exports.default = ReactionProvider;
 const constants_1 = require("../../../constants");
 const error_1 = require("../../error");
 async function ReactionProvider({ repo, id, userId, reaction, }) {
-    const document = await repo.getOneById(id);
+    const document = await repo.getOne({ _id: id });
     if (!document)
         throw new error_1.NotFoundError("can't found ");
     const reactIndex = document?.reactions.findIndex((react) => react.userId.toString() == userId);

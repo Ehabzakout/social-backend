@@ -20,6 +20,7 @@ function bootstrap(app, express) {
     app.use("/user", modules_1.userRouter);
     app.use("/posts", modules_1.postRouter);
     app.use("/comment", modules_1.commentRouter);
+    app.use("/request", modules_1.requestRouter);
     app.use("/{*dummy}", (req, res) => {
         res.status(404).json({ message: "route not found", success: false });
     });
@@ -28,6 +29,7 @@ function bootstrap(app, express) {
             message: error.message || "Internal Server Error",
             success: false,
             details: error.errorDetails,
+            stack: error.stack,
         });
     });
 }

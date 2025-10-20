@@ -4,7 +4,13 @@ import { connectDB } from "./DB";
 import { config } from "dotenv";
 import { rateLimit } from "express-rate-limit";
 import { type AppError } from "./utils/error";
-import { authRouter, userRouter, postRouter, commentRouter } from "./modules";
+import {
+	authRouter,
+	userRouter,
+	postRouter,
+	commentRouter,
+	requestRouter,
+} from "./modules";
 
 export default function bootstrap(app: Express, express: any) {
 	config();
@@ -21,6 +27,7 @@ export default function bootstrap(app: Express, express: any) {
 	app.use("/user", userRouter);
 	app.use("/posts", postRouter);
 	app.use("/comment", commentRouter);
+	app.use("/request", requestRouter);
 	app.use("/{*dummy}", (req, res) => {
 		res.status(404).json({ message: "route not found", success: false });
 	});
@@ -31,6 +38,7 @@ export default function bootstrap(app: Express, express: any) {
 				message: error.message || "Internal Server Error",
 				success: false,
 				details: error.errorDetails,
+				stack: error.stack,
 			});
 		}
 	);

@@ -9,6 +9,7 @@ export interface IPost {
 	userId: ObjectId;
 	content: string;
 	attachment?: any[];
-
 	reactions: IReaction[];
+	isDeleted: boolean;
+	deletedAt?: Date;
 }

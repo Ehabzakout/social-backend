@@ -19,3 +19,15 @@ export enum REACTION {
 	love,
 	angry,
 }
+export enum REQUEST_STATUS {
+	"pending" = "pending",
+	"canceled" = "canceled",
+	"accepted" = "accepted",
+	"rejected" = "rejected",
+}
+
+export enum REQUEST_TYPE {
+	"friend" = "friend",
+	"unfriend" = "unfriend",
+	"block" = "block",
+}

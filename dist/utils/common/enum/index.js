@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REACTION = exports.USER_AGENT = exports.GENDER = exports.SYS_ROLE = void 0;
+exports.REQUEST_TYPE = exports.REQUEST_STATUS = exports.REACTION = exports.USER_AGENT = exports.GENDER = exports.SYS_ROLE = void 0;
 var SYS_ROLE;
 (function (SYS_ROLE) {
     SYS_ROLE["user"] = "user";
@@ -23,3 +23,16 @@ var REACTION;
     REACTION[REACTION["love"] = 1] = "love";
     REACTION[REACTION["angry"] = 2] = "angry";
 })(REACTION || (exports.REACTION = REACTION = {}));
+var REQUEST_STATUS;
+(function (REQUEST_STATUS) {
+    REQUEST_STATUS["pending"] = "pending";
+    REQUEST_STATUS["canceled"] = "canceled";
+    REQUEST_STATUS["accepted"] = "accepted";
+    REQUEST_STATUS["rejected"] = "rejected";
+})(REQUEST_STATUS || (exports.REQUEST_STATUS = REQUEST_STATUS = {}));
+var REQUEST_TYPE;
+(function (REQUEST_TYPE) {
+    REQUEST_TYPE["friend"] = "friend";
+    REQUEST_TYPE["unfriend"] = "unfriend";
+    REQUEST_TYPE["block"] = "block";
+})(REQUEST_TYPE || (exports.REQUEST_TYPE = REQUEST_TYPE = {}));

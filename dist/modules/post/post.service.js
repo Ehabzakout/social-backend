@@ -7,6 +7,7 @@ const factory_1 = require("./factory");
 const post_repository_1 = require("../../DB/model/post/post-repository");
 const utils_1 = require("../../utils");
 const reactions_provider_1 = __importDefault(require("../../utils/common/provider/reactions-provider"));
+const update_provider_1 = require("../../utils/common/provider/update.provider");
 class PostService {
     postRepository = new post_repository_1.PostRepository();
     create = async (req, res) => {
@@ -48,6 +49,8 @@ class PostService {
         });
         if (!post)
             throw new utils_1.NotFoundError("Can't found post");
+        if (post.isDeleted)
+            throw new utils_1.NotFoundError("this post has been deleted");
         return res
             .status(200)
             .json({ message: "Get post successfully", success: true, post });
@@ -63,6 +66,36 @@ class PostService {
         return res
             .status(200)
             .json({ message: "Post deleted successfully", success: true });
+    };
+    // Freeze Post
+    freezePost = async (req, res) => {
+        const { id } = req.params;
+        if (!id)
+            throw new utils_1.BadRequestError("Not found post id");
+        const userId = req.user._id.toString();
+        const post = await this.postRepository.getOneById(id);
+        if (!post)
+            throw new utils_1.NotFoundError("Can't found Post");
+        if (post.userId.toString() !== userId)
+            throw new utils_1.ForbiddenError("Not authorize to delete this");
+        if (post.isDeleted) {
+            await this.postRepository.updateOne({ _id: id }, { isDeleted: false, $unset: { deletedAt: "" } });
+        }
+        else
+            await this.postRepository.updateOne({ _id: id }, { isDeleted: true, deletedAt: Date.now() });
+        return res.sendStatus(204);
+    };
+    // Update Post
+    updatePost = async (req, res) => {
+        const { id } = req.params;
+        if (!id)
+            throw new utils_1.BadRequestError("Send comment id");
+        const userId = req.user._id.toString();
+        console.log(userId);
+        await (0, update_provider_1.updateProvider)(this.postRepository, id, userId, req.body);
+        return res
+            .status(200)
+            .json({ message: "Post Updated successfully", success: true });
     };
 }
 exports.default = new PostService();
