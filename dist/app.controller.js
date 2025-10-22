@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = bootstrap;
+const express_1 = require("graphql-http/lib/use/express");
+const app_grphql_1 = require("./app.grphql");
 const DB_1 = require("./DB");
 const dotenv_1 = require("dotenv");
 const express_rate_limit_1 = require("express-rate-limit");
@@ -21,6 +23,21 @@ function bootstrap(app, express) {
     app.use("/posts", modules_1.postRouter);
     app.use("/comment", modules_1.commentRouter);
     app.use("/request", modules_1.requestRouter);
+    app.all("/graphql", (0, express_1.createHandler)({
+        schema: app_grphql_1.schema,
+        formatError: (error) => {
+            const e = error;
+            return {
+                message: e?.message || error.message,
+                path: e?.path,
+                details: e?.originalError,
+            };
+        },
+        context: (req) => {
+            const token = req.headers["accesstoken"];
+            return { token };
+        },
+    }));
     app.use("/{*dummy}", (req, res) => {
         res.status(404).json({ message: "route not found", success: false });
     });

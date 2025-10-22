@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
-
+import { createHandler } from "graphql-http/lib/use/express";
+import { schema } from "./app.grphql";
 import { connectDB } from "./DB";
 import { config } from "dotenv";
 import { rateLimit } from "express-rate-limit";
@@ -11,6 +12,7 @@ import {
 	commentRouter,
 	requestRouter,
 } from "./modules";
+import { GraphQLError } from "graphql";
 
 export default function bootstrap(app: Express, express: any) {
 	config();
@@ -28,6 +30,24 @@ export default function bootstrap(app: Express, express: any) {
 	app.use("/posts", postRouter);
 	app.use("/comment", commentRouter);
 	app.use("/request", requestRouter);
+	app.all(
+		"/graphql",
+		createHandler({
+			schema,
+			formatError: (error: Readonly<Error | GraphQLError>) => {
+				const e = error as GraphQLError;
+				return {
+					message: e?.message || (error as Error).message,
+					path: e?.path,
+					details: e?.originalError,
+				} as unknown as GraphQLError;
+			},
+			context: (req) => {
+				const token = req.headers["accesstoken"];
+				return { token };
+			},
+		})
+	);
 	app.use("/{*dummy}", (req, res) => {
 		res.status(404).json({ message: "route not found", success: false });
 	});
