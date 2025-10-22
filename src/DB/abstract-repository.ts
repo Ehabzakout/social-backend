@@ -1,9 +1,11 @@
 import {
 	Model,
 	MongooseBaseQueryOptions,
+	MongooseOptions,
 	MongooseUpdateQueryOptions,
 	ProjectionType,
 	QueryOptions,
+	QuerySelector,
 	RootFilterQuery,
 	UpdateQuery,
 } from "mongoose";
@@ -35,7 +37,7 @@ export abstract class abstractRepository<T> {
 
 	// get one method
 	async getOne(
-		filter: RootFilterQuery<T>,
+		filter: RootFilterQuery<T> & QuerySelector<T>,
 		projection?: ProjectionType<T>,
 		options?: QueryOptions<T>
 	) {
@@ -73,5 +75,13 @@ export abstract class abstractRepository<T> {
 		options?: MongooseBaseQueryOptions<T>
 	) {
 		return await this.model.deleteOne(filter, options);
+	}
+
+	// find one and delete
+	async getOneAndDelete(
+		filter: RootFilterQuery<T>,
+		options?: MongooseBaseQueryOptions<T>
+	) {
+		return await this.model.findOneAndDelete(filter, options);
 	}
 }

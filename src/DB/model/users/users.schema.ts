@@ -2,6 +2,8 @@ import { Schema } from "mongoose";
 import { IUser } from "../../../utils/common/interfaces/user";
 import { GENDER, SYS_ROLE, USER_AGENT } from "../../../utils/common/enum";
 import { sendEmail } from "../../../utils/email";
+import { User } from "./users.model";
+import { ForbiddenError } from "../../../utils";
 
 export const userSchema = new Schema<IUser>(
 	{
@@ -47,7 +49,7 @@ export const userSchema = new Schema<IUser>(
 		loginWith2factor: { type: Boolean, default: false },
 		blockedUsers: [Schema.Types.ObjectId],
 		requests: [{ type: Schema.Types.ObjectId, ref: "Request", unique: true }],
-		friends: [{ type: Schema.Types.ObjectId, ref: "User", unique: true }],
+		friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
 	},
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

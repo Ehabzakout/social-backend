@@ -3,11 +3,11 @@ import { UserRepository } from "../../DB";
 import { BadRequestError, NotFoundError } from "../../utils";
 
 class UserService {
-	public user = new UserRepository();
+	public userRepo = new UserRepository();
 	getProfile = async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const id = req.user?._id.toString();
 		if (!id) throw new BadRequestError("you should send  user id");
-		const profile = await this.user.getOneById(id);
+		const profile = await this.userRepo.getOneById(id);
 		if (!profile) throw new NotFoundError("User not found");
 		return res.status(200).json({ message: "success", success: true, profile });
 	};

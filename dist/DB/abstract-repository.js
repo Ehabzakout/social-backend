@@ -37,5 +37,9 @@ class abstractRepository {
     async deleteOne(filter, options) {
         return await this.model.deleteOne(filter, options);
     }
+    // find one and delete
+    async getOneAndDelete(filter, options) {
+        return await this.model.findOneAndDelete(filter, options);
+    }
 }
 exports.abstractRepository = abstractRepository;
